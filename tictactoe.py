@@ -96,7 +96,7 @@ class Game:
         while self.winner is None:
             self.ask(self.p1.value, self.p1.name)
             self.ask(self.p2.value, self.p2.name)
-        print(f'The winner is {self.winner}!')
+
 
     # read and write names.txt file to find and put new players and their winrates
     def read_and_write_names_file(self, file_name, wins = None, player = None):
@@ -107,30 +107,34 @@ class Game:
                         values = line.strip().split(':')
                         self.names.append(values[0].upper())
                         self.wins_list.append(values[1])
-                        self.write_names_file(wins,player, file)    #only when the game is over
+                    if wins != None and player != None:
+                        self.write_names_file(wins,player.upper(), file)    #only when the game is over
                     file.close()
-                print(self.names)
-                print(self.wins_list)
+                    print(f'Names of existing players: {self.names}')
+                    print(f'Wins of the existing players: {self.wins_list}')
+                    #to reset the lists. if not there will be a copy of the already existing names
+                    self.names = []
+                    self.wins_list = []
+
             except FileNotFoundError:
                 print(f"The file '{file_name}' was not found.")
 
     def write_names_file(self, wins, player, file_name):
-        if wins != None and player != None:
-            try:
-                i = self.names.index(player)
-                self.wins_list[i] = wins + self.wins_list[i]
-            except ValueError:  # More specific exception
-                self.names.append(player)
-                self.wins_list.append(wins)
+
+        try:
+            i = self.names.index(player)
+            self.wins_list[i] = wins + int(self.wins_list[i])
+        except ValueError:  # More specific exception
+            self.names.append(player)
+            self.wins_list.append(wins)
 
             # Move to the start of the file and clear it
-            file_name.seek(0)
-            file_name.truncate()
+        file_name.seek(0)
+        file_name.truncate()
 
             # Write each name and their respective wins on a new line
-            for i in range(len(self.names)):
-                file_name.write(f"{self.names[i]}:{self.wins_list[i]}\n")
-
+        for i in range(len(self.names)):
+            file_name.write(f"{self.names[i]}:{self.wins_list[i]}\n")
 
     #functions to check for the winner
     def check_win(self):
@@ -140,10 +144,12 @@ class Game:
             self.winner = 'P1'
             self.read_and_write_names_file('names.txt', self.p1.wins+1, self.p1.name)
             self.read_and_write_names_file('names.txt', self.p2.wins, self.p2.name)
+            print(f'The winner is {self.winner}: {self.p1.name}!')
         elif self.calculate_row() == p2_win or self.calculate_column() == p2_win or self.calculate_to_l() == p2_win or self.calculate_to_r() == p2_win:
             self.winner = 'P2'
             self.read_and_write_names_file('names.txt', self.p1.wins, self.p1.name)
             self.read_and_write_names_file('names.txt', self.p2.wins+1, self.p2.name)
+            print(f'The winner is {self.winner}: {self.p2.name}!')
 
     def calculate_column(self):
         for x in range(len(self.table[0])):
