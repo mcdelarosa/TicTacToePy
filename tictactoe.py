@@ -104,9 +104,10 @@ class Game:
             try:
                 with open(file_name, 'r+') as file:
                     for line in file:
-                        values = line.strip().split(':')
-                        self.names.append(values[0].upper())
-                        self.wins_list.append(values[1])
+                        if line.isspace() == False:
+                            values = line.strip().split(':')
+                            self.names.append(values[0].upper())
+                            self.wins_list.append(values[1])
                     if wins != None and player != None:
                         self.write_names_file(wins,player.upper(), file)    #only when the game is over
                     file.close()
